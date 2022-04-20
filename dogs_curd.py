@@ -1,16 +1,15 @@
-from faulthandler import disable
-from tabnanny import check
-from turtle import width
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dogs_db import Person, Dogs, Courses, Size
 from tkinter import *
 import re
 from PIL import ImageTk, Image
+from tkinter import filedialog
 
 
 engine = create_engine('sqlite:///dogs.db')
 session = sessionmaker(bind=engine)()
+
 
 def add_course(discipline):
     entry = Courses(discipline=discipline)
@@ -42,31 +41,8 @@ def del_entry(db,nr):
     entry = session.query(db).get(nr)
     session.delete(entry)
     session.commit()
+
     
-# add_person("Petras", "Stulpinas", "ps@gmail.com")
-# add_person("Jonas", "Jonaitis", "jj@gmail.com")
-# add_person("Zigmas", "Ponaitis", "zp@gmail.com")
-
-# add_dog_size("Small")
-# add_dog_size("Medium")
-#add_dog_size("Large")
-#add_dog_size("Undifined")
-
-# add_dog("Shunuta",7,3, 3)
-# add_dog("Pai",2,1, 2)
-
-# add_course("Agility")
-# add_course("Obiedence")
-# add_course("Frisbee")
-
-#entry_dog = session.query(Dogs).get(1)
-# #entry = session.query(Courses).get(3)
-# course = session.query(Courses).get(2)
-# entry_dog.courses.append(course)
-# session.add(entry_dog)
-# session.commit()
-#print(entry_dog.courses)
-#[print(i.discipline) for i in entry_dog.courses]
 
 
 class Pagrindinis:
@@ -89,14 +65,16 @@ class Pagrindinis:
         self.pai = Label(self.frame, image = self.img)
         self.pai.pack(side=TOP)
 
-        self.button_add_dog = Button(self.frame, text="Add dog", width=20, font = ('calibri', 10, 'bold'), background='green', command=self.new_window_add_dog)
+        self.button_add_dog = Button(self.frame, text="Add dog", width=20, font = ('calibri', 10, 'bold'), background='yellow', command=self.new_window_add_dog)
         self.button_add_dog.pack()
-        self.button_add_owner = Button(self.frame, text="Add Owner", width=20, font = ('calibri', 10, 'bold'), background='red', command=self.new_window_add_owner)
+        self.button_add_owner = Button(self.frame, text="Add Owner", width=20, font = ('calibri', 10, 'bold'), background='green', command=self.new_window_add_owner)
         self.button_add_owner.pack()
+        self.button_add_courses = Button(self.frame, text="Assign courses to dog", width=20, font = ('calibri', 10, 'bold'), background='red', command=self.new_window_assign_courses)
+        self.button_add_courses.pack()
         
-        self.button_show_dogs = Radiobutton(self.frame, text="Show Dogs",width=20, indicator = 0, command=self.show_dogs)
+        self.button_show_dogs = Radiobutton(self.frame, text="Delete Dogs",width=20, indicator = 0, command=self.show_dogs)
         self.button_show_dogs.pack()
-        self.button_show_owners = Radiobutton(self.frame, text="Show Owners",width=20, indicator = 0, command=self.show_owners)
+        self.button_show_owners = Radiobutton(self.frame, text="Delete Owners",width=20, indicator = 0, command=self.show_owners)
         self.button_show_owners.pack()
 
         self.button_update_screen = Button(self.frame, text="Update Screen", width=20, font = ('calibri', 10, 'bold'), background='red', command=self.screen)
@@ -112,10 +90,45 @@ class Pagrindinis:
         self.scrollbar1.config(command=self.l_box.xview)
         self.scrollbar1.pack(side=BOTTOM, fill='x')
         self.scrollbar.pack(side=RIGHT, fill=Y)
-
-      
+        
+        menubar = Menu(root)
+        root.config(menu=menubar)
+        sub_meniu = Menu(menubar, tearoff=0)
+        sub_meniu_file = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="File", menu=sub_meniu_file)
+        sub_meniu_file.add_command(label="Save", command=self.file_save)
+        sub_meniu_file.add_command(label="Load", command=self.load_file)
+        sub_meniu_file.add_separator()
+        sub_meniu_file.add_command(label="Exit", command=self.exit)
+        menubar.add_cascade(label="Read", menu=sub_meniu)
+        sub_meniu.add_command(label="Dogs", command=self.show_dogs)
+        sub_meniu.add_command(label="Owners", command=self.show_owners)
+        sub_meniu.add_separator()
+        sub_menu_courses = Menu(sub_meniu, tearoff=0)
+        sub_meniu.add_cascade(label="Dogs and Courses", menu=sub_menu_courses)
+        sub_menu_courses.add_command(label='Owners and dogs', command=self.read_meniu_owners)
+        sub_menu_courses.add_command(label='Dogs and courses', command=self.read_meniu_dog_courses)
+        
+        
         self.screen()
-
+    
+    
+    
+    def file_save(self):
+        
+        filename = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
+        if filename is not None:
+            for i in self.l_box.get(0,END):
+                filename.write(i+"\n")
+        
+    def load_file(self):
+        filename = filedialog.askopenfile(mode='r+', filetypes =[('Txt', '*.txt')])
+        if filename is not None:
+            t = filename.readlines()
+            self.l_box.delete(0, END)
+        for item in t:
+            self.l_box.insert('end', item)
+            self.l_box.focus()   
         
     def screen(self):
         self.l_box.delete(0, END)
@@ -130,13 +143,36 @@ class Pagrindinis:
         self.l_box.insert(END,"-----------Owners list-------------------Email-----------------")
         self.l_box.insert(END,*self.listas_owners)
         self.l_box.pack(side=TOP)
+        self.button_delete_entry['state'] = DISABLED
+        session.commit()
+    
+    def read_meniu_owners(self):
+        temp_list = []
+        owners = session.query(Person).all()
+        for owner in owners:
+            temp_list.append(f'{owner.name}      has these dogs :    {owner.dogs}')
+        self.l_box.delete(0, END)
+        self.l_box.insert(0,*temp_list)
+        session.commit()
+
+    def read_meniu_dog_courses(self):
+        temp_list = []
+        dogs = session.query(Dogs).all()
+        for dog in dogs:
+            disciplines = [i.discipline for i in dog.courses]
+            temp_list.append(f'{dog.name}   ----->      {disciplines}')
+        self.l_box.delete(0, END)
+        self.l_box.insert(0,*temp_list)
+        session.commit()
 
       
 
     def show_dogs(self):
+        
         self.l_box.delete(0, END)
         self.l_box.insert(0,*self.listas_dogs)
         self.button_delete_entry['state'] = NORMAL
+        
     
     
     def show_owners(self):
@@ -146,18 +182,25 @@ class Pagrindinis:
 
         
     def delete_entry(self):
-        listas = session.query(Dogs).all()
-        nr = listas[self.l_box.curselection()[0]].id
-        del_entry(Dogs,nr)
-        self.button_delete_entry['state'] = DISABLED
-        self.screen()
-       
-    
-   
+        try:
+            listas = session.query(Dogs).all()
+            nr = listas[self.l_box.curselection()[0]].id
+            del_entry(Dogs,nr)
+            self.button_delete_entry['state'] = DISABLED
+            self.screen()
+        except:
+            listas = session.query(Person).all()
+            nr = listas[self.l_box.curselection()[0]].id
+            del_entry(Person,nr)
+            self.button_delete_entry['state'] = DISABLED
+            self.screen()         
+        else:
+            print("Select Entry to delete")
 
 
-        
-        
+    def new_window_assign_courses(self):
+        self.new = Toplevel(self.root)
+        self.app = Assign_courses(self.new)
 
     def new_window_add_dog(self):
         self.new = Toplevel(self.root)
@@ -166,6 +209,9 @@ class Pagrindinis:
     def new_window_add_owner(self):
         self.new = Toplevel(self.root)
         self.app = Add_owner(self.new)
+
+    def exit(self):
+        self.root.destroy()
 
 class Add_dog:
 
@@ -228,6 +274,7 @@ class Add_dog:
             owner_id = int(re.findall(r'\d+',self.variable_name.get())[0])
             add_dog(name,age,size,owner_id)
             self.entry_name.delete(0, END)
+            self.entry_age.delete(0, END)
         except:
             print("Fill all entries correctly")
     
@@ -283,7 +330,73 @@ class Add_owner:
         self.entry_l_name.delete(0, END)
         self.entry_email.delete(0, END)
         
-         
+class Assign_courses:
+
+    def __init__(self, root):
+        self.root = root
+        root.title("Assign courses")
+        self.root.geometry("250x200")
+
+        self.frame_top = Frame(self.root)
+        self.frame_bot = Frame(self.root)
+        self.frame_top.pack(side=LEFT)
+        self.frame_bot.pack(side=BOTTOM)
+
+        self.variable_name = StringVar(self.frame_top)
+        self.names = self.get_dog_names()
+        self.variable_name.set("Choose owners name")
+        self.pick_name = OptionMenu(root, self.variable_name, *self.names)
+        self.pick_name.pack()
+
+        self.agility = IntVar()
+        self.size_check_s = Radiobutton(self.frame_top, text="Agility",variable=self.agility, value=1)
+        self.size_check_s.pack()
+        self.obiedence = IntVar()
+        self.size_check_m = Radiobutton(self.frame_top, text="Obiedence",variable=self.obiedence, value=2)
+        self.size_check_m.pack()
+        self.frisbee = IntVar()
+        self.size_check_l = Radiobutton(self.frame_top, text="Frisbee",variable=self.frisbee, value=3)
+        self.size_check_l.pack()
+
+        self.button2 = Button(self.frame_bot, text="Confirm", width=15, font=('Arial', 12), command=self.confirm)
+        self.button2.pack()
+        self.button1 = Button(self.frame_bot, text="Exit", width=15, command=self.close)
+        self.button1.pack()
+        
+
+        
+    def get_dog_names(self):
+        self.all = session.query(Dogs).all()
+        self.listas = []
+        for self.entry in self.all:
+            self.listas.append((int(self.entry.id),self.entry.name))
+        return self.listas
+
+    def confirm(self):
+        dog_id = int(re.findall(r'\d+',self.variable_name.get())[0])
+        disciplines = [self.agility.get(), self.obiedence.get(), self.frisbee.get()]
+        entry_dog = session.query(Dogs).get(dog_id)
+        for disipline in disciplines:
+            if disipline > 0:
+                nr = int(disipline)
+                course = session.query(Courses).get(nr)
+                entry_dog.courses.append(course)
+                session.commit()
+        self.agility.set(0)
+        self.obiedence.set(0)
+        self.frisbee.set(0)
+        
+        print(f" {entry_dog.name} joined disciplines: " )
+        [print(i.discipline) for i in entry_dog.courses]
+       
+        
+    
+        
+
+    def close(self):
+        self.root.destroy()
+
+           
                
 
 def main():

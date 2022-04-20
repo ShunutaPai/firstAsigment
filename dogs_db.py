@@ -40,7 +40,7 @@ class Dogs(Base):
     courses = relationship("Courses",secondary=filler, back_populates = "dogs")
      
     def __repr__(self):
-        return f'{self.id:<3}{self.name}'
+        return f'{self.name}'
    
 class Courses(Base):
     
