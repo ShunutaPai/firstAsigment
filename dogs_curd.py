@@ -76,9 +76,9 @@ class Pagrindinis:
         self.button_show_owners = Radiobutton(self.frame, text="Delete Owners",width=20, indicator = 0, command=self.show_owners)
         self.button_show_owners.pack()
 
-        self.button_update_screen = Button(self.frame, text="Update Screen", width=20, font = ('calibri', 10, 'bold'), background='red', command=self.screen)
+        self.button_update_screen = Button(self.frame, text="Update Screen", width=20, font = ('calibri', 10, 'bold'), background='cornflowerblue', command=self.screen)
         self.button_update_screen.pack()
-        self.button_delete_entry = Button(self.frame, text="Delete Entry", width=20, font = ('calibri', 10, 'bold'),state = DISABLED, background='red', command=self.delete_entry)
+        self.button_delete_entry = Button(self.frame, text="Delete Entry", width=20, font = ('calibri', 10, 'bold'),state = DISABLED, background='yellow', command=self.delete_entry)
         self.button_delete_entry.pack()
         
         self.scrollbar = Scrollbar(self.frame_info)
