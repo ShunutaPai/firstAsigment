@@ -4,7 +4,7 @@ from dogs_db import Person, Dogs, Courses, Size
 from tkinter import *
 import re
 from PIL import ImageTk, Image
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 
 
 engine = create_engine('sqlite:///dogs.db')
@@ -42,7 +42,8 @@ def del_entry(db,nr):
     session.delete(entry)
     session.commit()
 
-    
+def error_mesage():
+    messagebox.showerror('Python Error', 'Error: Something went wrong -- BE SMARTER!!!')    
 
 
 class Pagrindinis:
@@ -182,20 +183,21 @@ class Pagrindinis:
 
         
     def delete_entry(self):
-        try:
-            listas = session.query(Dogs).all()
-            nr = listas[self.l_box.curselection()[0]].id
-            del_entry(Dogs,nr)
-            self.button_delete_entry['state'] = DISABLED
-            self.screen()
-        except:
-            listas = session.query(Person).all()
-            nr = listas[self.l_box.curselection()[0]].id
-            del_entry(Person,nr)
-            self.button_delete_entry['state'] = DISABLED
-            self.screen()         
+        if self.l_box.curselection():
+            try:
+                listas = session.query(Dogs).all()
+                nr = listas[self.l_box.curselection()[0]].id
+                del_entry(Dogs,nr)
+                self.button_delete_entry['state'] = DISABLED
+                self.screen()
+            except:
+                listas = session.query(Person).all()
+                nr = listas[self.l_box.curselection()[0]].id
+                del_entry(Person,nr)
+                self.button_delete_entry['state'] = DISABLED
+                self.screen()         
         else:
-            print("Select Entry to delete")
+            error_mesage()
 
 
     def new_window_assign_courses(self):
@@ -276,7 +278,7 @@ class Add_dog:
             self.entry_name.delete(0, END)
             self.entry_age.delete(0, END)
         except:
-            print("Fill all entries correctly")
+            error_mesage()
     
     def uzdaryti(self):
         self.root.destroy()
@@ -321,7 +323,7 @@ class Add_owner:
             add_person(name, l_name, email)
             self.clean_entries()
         except:
-            print("Fill all entries correctly")
+            error_mesage()
         
     
 
@@ -386,8 +388,11 @@ class Assign_courses:
         self.obiedence.set(0)
         self.frisbee.set(0)
         
-        print(f" {entry_dog.name} joined disciplines: " )
-        [print(i.discipline) for i in entry_dog.courses]
+
+        
+        
+        # print(f" {entry_dog.name} joined disciplines: " )
+        # [print(i.discipline) for i in entry_dog.courses]
        
         
     
