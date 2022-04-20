@@ -58,9 +58,7 @@ class Pagrindinis:
         self.frame = Frame(self.root)
         self.frame.pack(side=LEFT)
         self.frame_info = Frame(self.root)
-        self.frame_info.pack(side=RIGHT)
-
-        
+        self.frame_info.pack(side=RIGHT)    
 
         self.img = ImageTk.PhotoImage(Image.open("pai.jpg"))
         self.pai = Label(self.frame, image = self.img)
@@ -83,7 +81,6 @@ class Pagrindinis:
         self.button_delete_entry = Button(self.frame, text="Delete Entry", width=20, font = ('calibri', 10, 'bold'),state = DISABLED, background='red', command=self.delete_entry)
         self.button_delete_entry.pack()
         
-
         self.scrollbar = Scrollbar(self.frame_info)
         self.scrollbar1 = Scrollbar(self.frame_info,orient='horizontal')
         self.l_box = Listbox(self.frame_info,width=50,height=50,font=('Arial', 12), yscrollcommand=self.scrollbar.set, xscrollcommand=self.scrollbar1.set)
@@ -110,11 +107,9 @@ class Pagrindinis:
         sub_menu_courses.add_command(label='Owners and dogs', command=self.read_meniu_owners)
         sub_menu_courses.add_command(label='Dogs and courses', command=self.read_meniu_dog_courses)
         
-        
         self.screen()
     
-    
-    
+       
     def file_save(self):
         
         filename = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
@@ -388,16 +383,6 @@ class Assign_courses:
         self.obiedence.set(0)
         self.frisbee.set(0)
         
-
-        
-        
-        # print(f" {entry_dog.name} joined disciplines: " )
-        # [print(i.discipline) for i in entry_dog.courses]
-       
-        
-    
-        
-
     def close(self):
         self.root.destroy()
 
