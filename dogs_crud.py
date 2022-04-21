@@ -9,11 +9,10 @@ import webbrowser
 
 
 engine = create_engine('sqlite:///dogs.db')
-session = sessionmaker(bind=engine)()
-
+session = sessionmaker(bind = engine)()
 
 def add_course(discipline):
-    entry = Courses(discipline=discipline)
+    entry = Courses(discipline = discipline)
     session.add(entry)
     session.commit()
 
@@ -22,12 +21,12 @@ def add_dog_size(name):
     session.add(entry)
     session.commit()
 
-def add_person(name,l_name,email):
+def add_person(name, l_name, email):
     entry = Person(name=name, l_name=l_name, email=email)
     session.add(entry)
     session.commit()
 
-def add_dog(name,age,size_id,owner_id):
+def add_dog(name, age, size_id, owner_id):
     entry = Dogs(name=name,
                  age=age,
                  size_id=size_id,
@@ -38,19 +37,16 @@ def add_dog(name,age,size_id,owner_id):
     session.add(entry)
     session.commit()
 
-def del_entry(db,nr):
-    entry = session.query(db).get(nr)
+def del_entry(db_table_class, object_id):
+    entry = session.query(db_table_class).get(object_id)
     session.delete(entry)
     session.commit()
 
 def error_mesage(msg):
     messagebox.showerror('Python Error', f'{msg} BE SMARTER!!!')
 
-   
-
 
 class Main:
-    
 
     def __init__(self, root):
         self.root = root
@@ -67,9 +63,23 @@ class Main:
         self.pai = Button(self.frame, image = self.img, command=self.openUrl)
         self.pai.pack(side=TOP)
     
-        self.button_add_dog = Button(self.frame, text="Add dog", width=20, font = ('calibri', 10, 'bold'), background='yellow', command=self.new_window_add_dog)
+        self.button_add_dog = Button(
+            self.frame, 
+            text="Add dog", 
+            width=20, 
+            font = ('calibri', 10, 'bold'), 
+            background='yellow', 
+            command=self.new_window_add_dog
+        )
         self.button_add_dog.pack()
-        self.button_add_owner = Button(self.frame, text="Add Owner", width=20, font = ('calibri', 10, 'bold'), background='green', command=self.new_window_add_owner)
+        self.button_add_owner = Button(
+            self.frame, 
+            text="Add Owner", 
+            width=20, 
+            font = ('calibri', 10, 'bold'), 
+            background='green', 
+            command=self.new_window_add_owner
+        )
         self.button_add_owner.pack()
         self.button_add_courses = Button(self.frame, text="Assign courses to dog", width=20, font = ('calibri', 10, 'bold'), background='red', command=self.new_window_assign_courses)
         self.button_add_courses.pack()
@@ -86,7 +96,13 @@ class Main:
         
         self.scrollbar = Scrollbar(self.frame_info)
         self.scrollbar1 = Scrollbar(self.frame_info,orient='horizontal')
-        self.l_box = Listbox(self.frame_info,width=50,height=50,font=('Arial', 12), yscrollcommand=self.scrollbar.set, xscrollcommand=self.scrollbar1.set)
+        self.l_box = Listbox(
+            self.frame_info, 
+            width=50, height=50, 
+            font=('Arial', 12), 
+            yscrollcommand=self.scrollbar.set, 
+            xscrollcommand=self.scrollbar1.set
+        )
         self.scrollbar.config(command=self.l_box.yview)
         self.scrollbar1.config(command=self.l_box.xview)
         self.scrollbar1.pack(side=BOTTOM, fill='x')
@@ -165,20 +181,15 @@ class Main:
         self.l_box.insert(0,*temp_list)
         session.commit()
 
-      
-
     def show_dogs(self):        
         self.l_box.delete(0, END)
         self.l_box.insert(0,*self.listas_dogs)
         self.button_delete_entry['state'] = NORMAL
-        
-    
     
     def show_owners(self):
         self.l_box.delete(0, END)
         self.l_box.insert(0,*self.listas_owners)
         self.button_delete_entry['state'] = NORMAL
-
         
     def delete_entry(self):
         if self.l_box.curselection():
@@ -197,18 +208,17 @@ class Main:
         else:
             error_mesage("Select an entry to delete")
 
-
     def new_window_assign_courses(self):
         self.new = Toplevel(self.root)
-        self.app = Assign_courses(self.new)
+        self.app = AssignCoursesWindow(self.new)
 
     def new_window_add_dog(self):
         self.new = Toplevel(self.root)
-        self.app = Add_dog(self.new)
+        self.app = AddDogWindow(self.new)
 
     def new_window_add_owner(self):
         self.new = Toplevel(self.root)
-        self.app = Add_owner(self.new)
+        self.app = AddOwnerWindow(self.new)
 
     def exit(self):
         self.root.destroy()
@@ -228,7 +238,7 @@ class Main:
 
 
 
-class Add_dog:
+class AddDogWindow:
 
     def __init__(self, root):
         self.root = root
@@ -271,14 +281,12 @@ class Add_dog:
         self.button1 = Button(self.frame_bot, text="Exit", width=15, command=self.exit)
         self.button1.pack(side=BOTTOM)
 
-
     def get_names(self):
         all = session.query(Person).all()
         listas = []
         for entry in all:
             listas.append((int(entry.id),entry.name,entry.l_name))
         return listas
-
        
     def confirm(self):
         try:
@@ -286,7 +294,7 @@ class Add_dog:
             age = int(self.entry_age.get())
             size = self.size.get()
             owner_id = int(re.findall(r'\d+',self.variable_name.get())[0])
-            add_dog(name,age,size,owner_id)
+            add_dog(name, age, size, owner_id)
             self.entry_name.delete(0, END)
             self.entry_age.delete(0, END)
         except:
@@ -296,7 +304,7 @@ class Add_dog:
         self.root.destroy()
 
 
-class Add_owner:
+class AddOwnerWindow:
 
     def __init__(self, root):
         self.root = root
@@ -335,13 +343,13 @@ class Add_owner:
             self.clean_entries()
         except:
             error_mesage()
-        
+
     def clean_entries(self):
         self.entry_name.delete(0, END)
         self.entry_l_name.delete(0, END)
         self.entry_email.delete(0, END)
-        
-class Assign_courses:
+
+class AssignCoursesWindow:
 
     def __init__(self, root):
         self.root = root
@@ -373,7 +381,7 @@ class Assign_courses:
         self.button2.pack()
         self.button1 = Button(self.frame_bot, text="Exit", width=15, command=self.close)
         self.button1.pack()
-                
+
     def get_dog_names(self):
         all = session.query(Dogs).all()
         listas = []
@@ -394,14 +402,11 @@ class Assign_courses:
         self.agility.set(0)
         self.obiedence.set(0)
         self.frisbee.set(0)
-        
+
     def close(self):
         self.root.destroy()
 
-           
-               
 def main():
-    
     root = Tk()
     app = Main(root)
     root.mainloop()
