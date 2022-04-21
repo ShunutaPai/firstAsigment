@@ -1,4 +1,3 @@
-
 from sqlalchemy import Column, ForeignKey, Integer, String, create_engine, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -6,9 +5,7 @@ from sqlalchemy.orm import relationship, sessionmaker
 engine = create_engine('sqlite:///dogs.db')
 Base = declarative_base()
 
-
-
-filler = Table ('doggy_courses', Base.metadata,
+filler = Table('doggy_courses', Base.metadata,
         Column('dogs_id',Integer, ForeignKey("dogs.id")),
         Column('courses_id',Integer, ForeignKey("courses.id"))
 )
@@ -22,7 +19,6 @@ class Person(Base):
     l_name = Column("l_name", String)
     email = Column("email", String)
     dogs = relationship("Dogs", back_populates="owner")
-    
         
     def __repr__(self):
         return f'{self.id:<3}{self.name:<15}{self.l_name:<15} {self.email:>12}'
